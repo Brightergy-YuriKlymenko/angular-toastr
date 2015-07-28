@@ -76,11 +76,11 @@
           if (maxOpened && toasts.length >= maxOpened) {
             toasts[maxOpened - 1].open.resolve();
           }
-          if (lastToast()) {
+//          if (lastToast()) {
             container.remove();
             container = null;
             containerDefer = $q.defer();
-          }
+//          }
         });
       }
 
