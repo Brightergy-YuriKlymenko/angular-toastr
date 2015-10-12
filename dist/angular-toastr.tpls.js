@@ -163,11 +163,11 @@
           newToast.isOpened = true;
           if (options.newestOnTop) {
             container.prepend(newToast.el);
-            newToast.scope.init();
+            //newToast.scope.init();
           } else {
             var sibling = container[0].lastChild ? angular.element(container[0].lastChild) : null;
             container.append(newToast.el);
-            newToast.scope.init();
+            //newToast.scope.init();
           }
         });
       });
