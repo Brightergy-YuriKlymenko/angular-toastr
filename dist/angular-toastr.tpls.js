@@ -4,9 +4,9 @@
   angular.module('toastr', [])
     .factory('toastr', toastr);
 
-  toastr.$inject = ['$animate', '$injector', '$document', '$rootScope', '$sce', 'toastrConfig', '$q'];
+  toastr.$inject = ['$injector', '$document', '$rootScope', '$sce', 'toastrConfig', '$q'];
 
-  function toastr($animate, $injector, $document, $rootScope, $sce, toastrConfig, $q) {
+  function toastr($injector, $document, $rootScope, $sce, toastrConfig, $q) {
     var container;
     var index = 0;
     var toasts = [];
@@ -64,25 +64,24 @@
       if (toast && ! toast.deleting) { // Avoid clicking when fading out
         toast.deleting = true;
         toast.isOpened = false;
-        $animate.leave(toast.el).then(function() {
-          if (toast.scope.options.onHidden) {
-            toast.scope.options.onHidden(wasClicked);
-          }
-          toast.scope.$destroy();
-          var index = toasts.indexOf(toast);
-          delete openToasts[toast.scope.message];
-          toasts.splice(index, 1);
-          var maxOpened = toastrConfig.maxOpened;
-          if (maxOpened && toasts.length >= maxOpened) {
-            toasts[maxOpened - 1].open.resolve();
-          }
-          if (container !== null) {
+        toast.el.remove();
+        if (toast.scope.options.onHidden) {
+          toast.scope.options.onHidden(wasClicked);
+        }
+        toast.scope.$destroy();
+        var index = toasts.indexOf(toast);
+        delete openToasts[toast.scope.message];
+        toasts.splice(index, 1);
+        var maxOpened = toastrConfig.maxOpened;
+        if (maxOpened && toasts.length >= maxOpened) {
+          toasts[maxOpened - 1].open.resolve();
+        }
+        if (container !== null) {
 //          if (lastToast()) {
-            container.remove();
-            container = null;
-            containerDefer = $q.defer();
-          }
-        });
+          container.remove();
+          container = null;
+          containerDefer = $q.defer();
+        }
       }
 
       function findToast(toastId) {
@@ -132,9 +131,9 @@
         throw 'Target for toasts doesn\'t exist';
       }
 
-      $animate.enter(container, target).then(function() {
-        containerDefer.resolve();
-      });
+      target.prepend(container);
+
+      containerDefer.resolve();
 
       return containerDefer.promise;
     }
@@ -163,14 +162,12 @@
         _createOrGetContainer(options).then(function() {
           newToast.isOpened = true;
           if (options.newestOnTop) {
-            $animate.enter(newToast.el, container).then(function() {
-              newToast.scope.init();
-            });
+            container.prepend(newToast.el);
+            newToast.scope.init();
           } else {
             var sibling = container[0].lastChild ? angular.element(container[0].lastChild) : null;
-            $animate.enter(newToast.el, container, sibling).then(function() {
-              newToast.scope.init();
-            });
+            container.append(newToast.el);
+            newToast.scope.init();
           }
         });
       });
